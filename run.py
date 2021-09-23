@@ -1,8 +1,8 @@
-from featureLearningBan.policies.RepLearning import RepLearning
-from featureLearningBan.policies.Random import Random
-from featureLearningBan.policies.Oful import Oful
-from featureLearningBan.environment import MTL
-from featureLearningBan.Evaluation import Evaluation
+#from featLearnBan.policies.RepLearning import RepLearning
+from featLearnBan.policies.Random import Random
+from featLearnBan.policies.Oful import Oful
+from featLearnBan.environment import MTL
+from featLearnBan.Evaluation import Evaluation
 
 from numpy import arange, cumsum, log, zeros
 import matplotlib.pyplot as plt
@@ -16,12 +16,15 @@ rc('text', usetex=True)
 # ===
 SYNTH, LENK, LASTFM, MOVIE = 0, 1, 2, 3
 DATA = LASTFM
+
 d = [50, 9, 20, 20][DATA]  # Num Features
 s0 = [5, 1, 5, 5][DATA]  # Rank(W) parameter
-K = [50, 15, 30, 30][DATA]  # 100  # Num Arms
+K = [50, 15, 10, 30][DATA]  # 100  # Num Arms
 T = [50, 15, 20, 20][DATA]  # 200  # Horizon
 N_TASK = [100, 50, 50, 40][DATA]  # 100  # Num Tasks
 variance = [0.05, 1., 1., 1.][DATA]
+reg = [1,1,1,1][DATA] # Regularization multiplied
+
 noisy_rewards = [True, True, True, True][DATA]
 N_REP = 2  # Number of Repetitions
 VERBOSE = True
@@ -30,6 +33,10 @@ assert K > 0, "Not consistent arms number parameter"
 assert d > s0, "Not consistent sparsity-features relation"
 assert T > 0, "Not consistent horizon parameter"
 assert N_TASK > 0, "Not consistent number of tasks"
+
+if VERBOSE:
+    print("RUN Horizon {}, Tasks {}, Arms {}, dimensions {}".format(T, N_TASK, K, d))
+
 # ===
 # INITIALIZATION
 # ===
@@ -40,10 +47,10 @@ policies_name = []
 # Random Policy
 policies["Random"] = [Random(K) for _ in range(N_TASK)]
 policies_name.append("Random")
-policies["RepLearning"] = [RepLearning(N_TASK,T,K)] 
-policies.append("RepLearning")
-policies["OFUL"] = [Oful(T,d) for _ in range(N_TASK)]
-policies_name.append("Oful")
+#policies["RepLearning"] = [RepLearning(N_TASK,T,K)] 
+#policies.append("RepLearning")
+policies["OFUL"] = [Oful(T, d, K, reg) for _ in range(N_TASK)]
+policies_name.append("OFUL")
 
 
 assert len(policies_name) == len(policies), "Inconsistent Policies"
@@ -66,7 +73,7 @@ for p_name, p in policies.items():
     print("\n=======NEW RUN=======")
     print("===POLICY {}===".format(p_name))
 
-    # Here each policy p is a list of N_TASK policies except for DRGroupLasso
+    # Here each policy p is a list of N_TASK policies except for RepLearning 
     mtl = MTL(DATA, N_TASK, T, K, d, s0, variance, p, p_name, noisy_rewards)
     evaluation = Evaluation(mtl, T, p_name, N_REP, N_TASK)
     results.append(evaluation.getResults())  # Result Class: (Policy Name, Mean Rewards, Std Rewards)
@@ -104,5 +111,5 @@ if VERBOSE:
     # plt.tight_layout()
     plt.legend(loc=2)
     plt.savefig(
-        'syLeLa{}_var{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}.png'.format(DATA, variance, d, s0, T, N_REP, N_TASK, K, noisy_rewards))
+        'output/featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}.png'.format(DATA, d, s0, T, N_REP, N_TASK, K, noisy_rewards))
     plt.show()
