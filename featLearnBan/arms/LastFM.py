@@ -1,15 +1,30 @@
 __version__ = "0.1"
 
-from pandas import concat, DataFrame, read_pickle, read_table
-from scipy.stats import pearsonr
-from numpy import array, asarray, concatenate, diag, dot, hstack, matrix, mean, newaxis, pad, unique, vectorize, vstack, \
-    zeros
-from numpy.random import RandomState
-from numpy.linalg import svd
-from pickle import dump, load
 from os import listdir, path
-from featLearnBan.arms import Arm
 from pathlib import Path
+from pickle import dump, load
+
+from featLearnBan.arms import Arm
+from numpy import (
+    array,
+    asarray,
+    concatenate,
+    diag,
+    dot,
+    hstack,
+    matrix,
+    mean,
+    newaxis,
+    pad,
+    unique,
+    vectorize,
+    vstack,
+    zeros,
+)
+from numpy.linalg import svd
+from numpy.random import RandomState
+from pandas import DataFrame, concat, read_pickle, read_table
+from scipy.stats import pearsonr
 
 here = path.dirname(__file__)
 
