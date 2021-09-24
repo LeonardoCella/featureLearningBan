@@ -1,6 +1,7 @@
 #from featLearnBan.policies.RepLearning import RepLearning
 from featLearnBan.policies.Random import Random
 from featLearnBan.policies.Oful import Oful
+from featLearnBan.policies.Lasso import Lasso
 from featLearnBan.environment import MTL
 from featLearnBan.Evaluation import Evaluation
 
@@ -20,10 +21,9 @@ DATA = LASTFM
 d = [50, 9, 20, 20][DATA]  # Num Features
 s0 = [5, 1, 5, 5][DATA]  # Rank(W) parameter
 K = [50, 15, 10, 30][DATA]  # 100  # Num Arms
-T = [50, 15, 20, 20][DATA]  # 200  # Horizon
-N_TASK = [100, 50, 50, 40][DATA]  # 100  # Num Tasks
+T = [50, 15, 30, 20][DATA]  # 200  # Horizon
+N_TASK = [100, 50, 20, 40][DATA]  # 100  # Num Tasks
 variance = [0.05, 1., 1., 1.][DATA]
-reg = [1,1,1,1][DATA] # Regularization multiplied
 
 noisy_rewards = [True, True, True, True][DATA]
 N_REP = 2  # Number of Repetitions
@@ -44,13 +44,17 @@ if VERBOSE:
 policies = {}
 policies_name = []
 
+reg = [.1, 1, 10]
+
 # Random Policy
-policies["Random"] = [Random(K) for _ in range(N_TASK)]
-policies_name.append("Random")
+#policies["Random"] = [Random(K) for _ in range(N_TASK)]
+#policies_name.append("Random")
 #policies["RepLearning"] = [RepLearning(N_TASK,T,K)] 
 #policies.append("RepLearning")
-policies["OFUL"] = [Oful(T, d, K, reg) for _ in range(N_TASK)]
+policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
 policies_name.append("OFUL")
+policies["LASSO"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
+policies_name.append("LASSO")
 
 
 assert len(policies_name) == len(policies), "Inconsistent Policies"

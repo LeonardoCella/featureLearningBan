@@ -10,6 +10,7 @@ sys.maxsize = 1000000  # Avoid truncations in print
 
 
 def parallel_repetitions(evaluation, horizon, nbTasks, i):
+    print("parallel repetitions")
     result = evaluation.environment.play(horizon, nbTasks, i)
     return i, result
 
@@ -35,8 +36,8 @@ class Evaluation:
 
         # Parallel call to the policy run over the number of repetitions
         with Parallel(n_jobs=self.nbRepetitions) as parallel:
-            rep_results = parallel(
-                delayed(parallel_repetitions)(self, self.horizon, self.nbTasks, i) for i in range(nbRepetitions))
+            print("Evaluation In with parallel")
+            rep_results = parallel(delayed(parallel_repetitions)(self, self.horizon, self.nbTasks, i) for i in range(nbRepetitions))
 
         # Results extrapolation
         for i, result in rep_results:

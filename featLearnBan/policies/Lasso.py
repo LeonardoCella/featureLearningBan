@@ -7,7 +7,6 @@ from featLearnBan.tools.matrix_functions import sherman_morrison
 
 class Lasso(Policy):
     def __init__(self, horizon, d, nb_arms, reg):
-        print("Lasso Rounds {}, Dimension {}, arms {}".format(horizon, d, nb_arms)) 
         self._T = horizon
         self._n_arms = nb_arms
         self._d = d
@@ -19,7 +18,7 @@ class Lasso(Policy):
 
     def update(self, j, t, arm, reward):
         lambda_t = self._reg * sqrt(log(self._d)/(self._t))
-        lasso = linear_model.Lasso(alpha =  self._reg)
+        lasso = linear_model.Lasso(alpha = self._reg, max_iter = 5000, tol = 0.001)
         self._Y.append(reward)
         lasso.fit(self._X, self._Y)
         self._w_hat = lasso.coef_
