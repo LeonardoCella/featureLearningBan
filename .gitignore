@@ -8,6 +8,9 @@
 *.py[cod]
 *$py.class
 
+# Pickle files are temporary
+**/*.pkl
+
 # C extensions
 *.so
 
