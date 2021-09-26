@@ -31,8 +31,8 @@ here = path.dirname(__file__)
 
 class LastFM(Arm):
 
-    def __init__(self, N, d, K, T, n_rep):
-        print("LastFM INIT N {} d {} K {} T {}".format(N, d, K, T))
+    def __init__(self, N, d, K, T, n_rep, shU, shI):
+        #print("LastFM INIT N {} d {} K {} T {}".format(N, d, K, T))
         self._N_ground = 100
         self._N = N
         self._d = d
@@ -41,15 +41,16 @@ class LastFM(Arm):
         self._rs = RandomState(n_rep)
         self._nrep = n_rep
         # Preprocessing and Context Generation
-        self._shrinkItem = 10
-        self._shrinkUser = 10
+        self._shrinkUser = shU
+        self._shrinkItem = shI
+        #print("Preprocessing/Shrinking")
         self._ratings_preprocessing()  # URM normalization + removing (almost) empty rows/cols
         self._context_mng()  # Create self._arms
-        print("Contexts created")
+        #print("Contexts created")
         self._users_mng()  # Create self._latentUsers
-        print("Users created")
+        #print("Users created")
         self._task_creation()  # Create self.Xtasks and self._listUID
-        print("Tasks created")
+        print("LastFM Tasks created")
 
     def get_context(self, j, t):
         contexts_jt = self.Xtasks[j][t, :]
@@ -83,11 +84,11 @@ class LastFM(Arm):
         considered_users = []
         all_itemsID = set(self._urm_df.columns.values)
 
-        task_path = "featLearnBan/arms/LastFM/XTasks_N{}_d{}_T{}_K{}_nrep{}.pkl".format(self._N, self._d, self._minT, self._K, self._nrep)
-        users_path = "featLearnBan/arms/LastFM/listUID_N{}_d{}_T{}_K{}_nrep{}.pkl".format(self._N, self._d, self._minT,
-                                                                                   self._K, self._nrep)
+        task_path = "featLearnBan/arms/LastFM/XTasks_N{}_d{}_T{}_K{}_nrep{}_shU{}_shI{}.pkl".format(self._N, self._d, self._minT, self._K, self._nrep, self._shrinkUser, self._shrinkItem)
+        users_path = "featLearnBan/arms/LastFM/listUID_N{}_d{}_T{}_K{}_nrep{}_shU{}_shI{}.pkl".format(self._N, self._d, self._minT,
+                                                                                   self._K, self._nrep, self._shrinkUser, self._shrinkItem)
 
-        if Path(task_path).exists() and Path(users_path).exists():
+        if Path(task_path).exists() and Path(users_path).exists() and False:
             print("Tasks ready")
             with open(Path(task_path), 'rb') as ContextsHandler:
                 self.Xtasks = load(ContextsHandler)
@@ -96,7 +97,7 @@ class LastFM(Arm):
                 self._listUID = load(ContextsHandler)
                 ContextsHandler.close()
         else:
-            print("LASTFM TASKS Computation")
+            #print("LASTFM TASKS Computation")
             first = True
             # Shuffling users
             #print("INIT {}".format(list_users[:10]))
@@ -158,12 +159,12 @@ class LastFM(Arm):
         # If ready, load the contexts
         path = "featLearnBan/arms/LastFM/contexts_SVD{}.pkl".format(self._d)
         if Path(path).exists() and False:
-            print("Contexts ready")
+            #print("Contexts ready")
             with open(path, 'rb') as ContextsHandler:
                 self._arms = read_pickle(ContextsHandler)
                 ContextsHandler.close()
         else:
-            print("Contexts generation")
+            #print("Contexts generation")
             self._contexts_generation('userID')
             self._arms.to_pickle(path)
 
@@ -173,7 +174,8 @@ class LastFM(Arm):
         X_np = self._urm_df.loc[:, :].T.values
         U, s, Vh = svd(X_np, full_matrices=True)
         S = diag(s)
-        print("URM SVD diagonal {}".format(s))
+        #print("URM SVD diagonal {}".format(list(s)))
+        #print("There are {}/{} elements grater than {}, the biggest element is {}".format(sum([i > 30000 for i in list(s)]), len(list(s)), 30000, list(s)[0]))
         self._arms = DataFrame(dot(U[:, :self._d], S[:self._d, :self._d]), index=self._urm_df.columns)
         self._arms["context"] = self._arms.values.tolist()
         self._arms = self._arms.drop([i for i in range(self._d)], axis=1)
@@ -184,12 +186,12 @@ class LastFM(Arm):
         path = 'featLearnBan/arms/LastFM/usersDF_SVD{}.pkl'.format(self._d)
         if Path(path).exists() and False:
             self._latentUsers = read_pickle(path)
-            print("Users ready: {}".format(self._latentUsers.shape))
+            #print("Users ready: {}".format(self._latentUsers.shape))
         else:
             X_np = self._urm_df.loc[:, :].values
             U, d, _ = svd(X_np, full_matrices=True)
             X_std = U[:, :self._d]  # Latent Representation
-            print("Latent users: {}".format(X_std.shape))
+            #print("Latent users: {}".format(X_std.shape))
             full_users = DataFrame(U, index=self._urm_df.index)
             self._latentUsers = DataFrame(X_std, index=self._urm_df.index)  # Lantent DF
             self._latentUsers.to_pickle(path)
@@ -212,7 +214,7 @@ class LastFM(Arm):
         # Storing
         self._urm_byrecords = urm_byrecords
         self._urm_df = urm_df
-        print("LastFM URM shape {}".format(self._urm_df.shape))
+        #print("LastFM URM shape {}".format(self._urm_df.shape))
         return
 
     def hasEnoughRounds(self, j):
@@ -229,4 +231,4 @@ class LastFM(Arm):
 
 
 if __name__ == '__main__':
-    istance = LastFM(20, 20, 10, 30, 1)  # N,d,k,min_T,compSimUser
+    istance = LastFM(20, 20, 10, 30, 1, 10, 10)  # N,d,k,min_T,compSimUser

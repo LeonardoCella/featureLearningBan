@@ -25,7 +25,6 @@ class Lasso(Policy):
         
 
     def choice(self, j, t, context_vectors):
-        self._t = t + 1
         wtx_array = dot(context_vectors, self._w_hat).T
         max_index = list(wtx_array).index(max(wtx_array))
         self._X.append(context_vectors[max_index])

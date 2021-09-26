@@ -1,4 +1,4 @@
-#from featLearnBan.policies.RepLearning import RepLearning
+from featLearnBan.policies.SA_FeatLearnBan import SA_FeatLearnBan
 from featLearnBan.policies.Random import Random
 from featLearnBan.policies.Oful import Oful
 from featLearnBan.policies.Lasso import Lasso
@@ -6,11 +6,10 @@ from featLearnBan.environment import MTL
 from featLearnBan.Evaluation import Evaluation
 
 from numpy import arange, cumsum, log, zeros
+from optparse import OptionParser
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-rc('font', **{'size': '23.0'})
-rc('text', usetex=True)
 
 # ===
 # RUNNING PARAMETERS
@@ -26,10 +25,29 @@ N_TASK = [100, 50, 20, 40][DATA]  # 100  # Num Tasks
 variance = [0.05, 1., 1., 1.][DATA]
 
 noisy_rewards = [True, True, True, True][DATA]
-N_REP = 2  # Number of Repetitions
 VERBOSE = True
 
+parser = OptionParser("Usage: %prog [options]", version="%prog 1.0")
+parser.add_option('-d', dest = 'd', default = "20", type = 'int', help = "Number of features")
+parser.add_option('-K', dest = 'K', default = "10", type = 'int', help = "Number of arms")
+parser.add_option('-T', dest = 'T', default = "20", type = 'int', help = "Number of rounds")
+parser.add_option('-N', dest = 'N', default = "30", type = 'int', help = "Number of taks")
+parser.add_option('--shU', dest = 'shU', default = "10", type = 'int', help = "Shrinking Users")
+parser.add_option('--shI', dest = 'shI', default = "10", type = 'int', help = "Shrinking Items")
+parser.add_option('--nrep', dest = 'nrep', default = "1", type = 'int', help = "Number Repetitions")
+
+
+(opts, args) = parser.parse_args()
+K = opts.K
+T = opts.T
+N_TASK = opts.N
+d = opts.d
+shU = opts.shU
+shI = opts.shI
+nrep = opts.nrep
+
 assert K > 0, "Not consistent arms number parameter"
+assert nrep > 0, "Not consistent number of repetitions"
 assert d > s0, "Not consistent sparsity-features relation"
 assert T > 0, "Not consistent horizon parameter"
 assert N_TASK > 0, "Not consistent number of tasks"
@@ -49,8 +67,8 @@ reg = [.1, 1, 10]
 # Random Policy
 #policies["Random"] = [Random(K) for _ in range(N_TASK)]
 #policies_name.append("Random")
-#policies["RepLearning"] = [RepLearning(N_TASK,T,K)] 
-#policies.append("RepLearning")
+policies["SA FeatLearnBan"] = [SA_FeatLearnBan(N_TASK,T, d ,K, reg[0])] 
+policies_name.append("SA FeatLearnBan")
 policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
 policies_name.append("OFUL")
 policies["LASSO"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
@@ -58,7 +76,7 @@ policies_name.append("LASSO")
 
 
 assert len(policies_name) == len(policies), "Inconsistent Policies"
-assert N_TASK >= N_REP, "This is required to have a consistent seed"
+assert N_TASK >= nrep, "This is required to have a consistent seed"
 
 # Plot parameters
 colors = ['r', 'g', 'c', 'b', 'y', 'm', '#ae34eb', '#eb348f']
@@ -77,16 +95,16 @@ for p_name, p in policies.items():
     print("\n=======NEW RUN=======")
     print("===POLICY {}===".format(p_name))
 
-    # Here each policy p is a list of N_TASK policies except for RepLearning 
-    mtl = MTL(DATA, N_TASK, T, K, d, s0, variance, p, p_name, noisy_rewards)
-    evaluation = Evaluation(mtl, T, p_name, N_REP, N_TASK)
+    # Here each policy p is a list of N_TASK policies except for SA_FeatLearnBan
+    mtl = MTL(DATA, N_TASK, T, K, d, s0, variance, p, p_name, noisy_rewards, shU, shI)
+    evaluation = Evaluation(mtl, T, p_name, nrep, N_TASK)
     results.append(evaluation.getResults())  # Result Class: (Policy Name, Mean Rewards, Std Rewards)
 
 if VERBOSE:
     # ===
     # RESULTS VISUALIZATION
     # ===
-    fig = plt.figure(1, figsize=(14, 10))
+    fig = plt.figure(1)
     ax = fig.add_subplot(1, 1, 1)
 
     # Rewards Extraction
@@ -112,8 +130,6 @@ if VERBOSE:
     ax.yaxis.grid(True)
 
     # Save the figure and show
-    # plt.tight_layout()
     plt.legend(loc=2)
     plt.savefig(
-        'output/featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}.png'.format(DATA, d, s0, T, N_REP, N_TASK, K, noisy_rewards))
-    plt.show()
+        'output/featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}_shU{}_shI{}.png'.format(DATA, d, s0, T, nrep, N_TASK, K, noisy_rewards, shU, shI))

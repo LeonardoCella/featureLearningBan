@@ -13,7 +13,7 @@ import random as rnd
 class MTL(Environment):
     """MTL multi-armed bandit problem with arms given in the 'arms' list"""
 
-    def __init__(self, DATA, N, T, K, d, s0, variance, policies, p_name, noisy_rewards):
+    def __init__(self, DATA, N, T, K, d, s0, variance, policies, p_name, noisy_rewards, shU = 10, shI = 10):
         print("MTL_INIT: Num task {}, Horizon {}, Arms {}, d {}, Policy {}".format(N, T, K, d, p_name))
         self._DATA = DATA
         self._N_TASKS = N
@@ -26,6 +26,8 @@ class MTL(Environment):
         self._p_name = p_name
         self._variance = variance
         self._noisy_rewards = noisy_rewards
+        self._shU = shU
+        self._shI = shI
 
     def play(self, horizon, nbTasks, nb_repetition):
         ''' Called once per policy from __init__ of Evaluation. Rounds scheduler.'''
@@ -71,11 +73,10 @@ class MTL(Environment):
                 if self._DATA == 2:  # LastFM
                     # Extract contexts and rwds listed by task
                     print("MTL LastFM")
-                    lastFM = LastFM(self._N_TASKS, self._d, self._K, self._T, nb_repetition)
+                    lastFM = LastFM(self._N_TASKS, self._d, self._K, self._T, nb_repetition, self._shU, self._shI)
                 else:  # Movielens
                     movielens = Movielens(self._N_TASKS, self._d, self._K, self._T)
 
-        sys.exit()
 
         # Sequence of interactions
         sequential_round = 0  # keeps the counter across tasks, used by Eval.store()
