@@ -243,4 +243,4 @@ def accelerated_gradient_tracenorm(inputs, outputs, lmbd, iterations, initial=0)
     #print("Bound on L: "+str(L_bound))
     return W, costs
 
-
+    

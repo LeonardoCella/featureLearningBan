@@ -88,7 +88,7 @@ class LastFM(Arm):
         users_path = "featLearnBan/arms/LastFM/listUID_N{}_d{}_T{}_K{}_nrep{}_shU{}_shI{}.pkl".format(self._N, self._d, self._minT,
                                                                                    self._K, self._nrep, self._shrinkUser, self._shrinkItem)
 
-        if Path(task_path).exists() and Path(users_path).exists() and False:
+        if Path(task_path).exists() and Path(users_path).exists():
             print("Tasks ready")
             with open(Path(task_path), 'rb') as ContextsHandler:
                 self.Xtasks = load(ContextsHandler)
@@ -158,7 +158,7 @@ class LastFM(Arm):
 
         # If ready, load the contexts
         path = "featLearnBan/arms/LastFM/contexts_SVD{}.pkl".format(self._d)
-        if Path(path).exists() and False:
+        if Path(path).exists():
             #print("Contexts ready")
             with open(path, 'rb') as ContextsHandler:
                 self._arms = read_pickle(ContextsHandler)
@@ -184,7 +184,7 @@ class LastFM(Arm):
     def _users_mng(self):
         '''Latent Users Creation'''
         path = 'featLearnBan/arms/LastFM/usersDF_SVD{}.pkl'.format(self._d)
-        if Path(path).exists() and False:
+        if Path(path).exists():
             self._latentUsers = read_pickle(path)
             #print("Users ready: {}".format(self._latentUsers.shape))
         else:

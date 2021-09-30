@@ -35,6 +35,7 @@ parser.add_option('-N', dest = 'N', default = "30", type = 'int', help = "Number
 parser.add_option('--shU', dest = 'shU', default = "10", type = 'int', help = "Shrinking Users")
 parser.add_option('--shI', dest = 'shI', default = "10", type = 'int', help = "Shrinking Items")
 parser.add_option('--nrep', dest = 'nrep', default = "1", type = 'int', help = "Number Repetitions")
+parser.add_option('--sa_cfg', dest = 'sa_cfg', default = "0", type = 'int', help = "SA regularization parameter index")
 
 
 (opts, args) = parser.parse_args()
@@ -45,12 +46,14 @@ d = opts.d
 shU = opts.shU
 shI = opts.shI
 nrep = opts.nrep
+sa_cfg = opts.sa_cfg
 
 assert K > 0, "Not consistent arms number parameter"
 assert nrep > 0, "Not consistent number of repetitions"
 assert d > s0, "Not consistent sparsity-features relation"
 assert T > 0, "Not consistent horizon parameter"
 assert N_TASK > 0, "Not consistent number of tasks"
+assert sa_cfg in range(2), "Not existing configuration"
 
 if VERBOSE:
     print("RUN Horizon {}, Tasks {}, Arms {}, dimensions {}".format(T, N_TASK, K, d))
@@ -65,18 +68,14 @@ policies_name = []
 reg = [.1, 1, 10]
 
 # Random Policy
-#policies["Random"] = [Random(K) for _ in range(N_TASK)]
-#policies_name.append("Random")
-policies["SA FeatLearnBan 0"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[0])] 
-policies_name.append("SA FeatLearnBan 0")
-policies["SA FeatLearnBan 1"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[1])] 
-policies_name.append("SA FeatLearnBan 1")
-policies["SA FeatLearnBan 10"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[2])] 
-policies_name.append("SA FeatLearnBan 10")
-#policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
-#policies_name.append("OFUL")
+policies["SA FeatLearnBan"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[sa_cfg])] 
+policies_name.append("SA FeatLearnBan")
+policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
+policies_name.append("OFUL")
 policies["LASSO"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
 policies_name.append("LASSO")
+policies["Random"] = [Random(K) for _ in range(N_TASK)]
+policies_name.append("Random")
 
 
 assert len(policies_name) == len(policies), "Inconsistent Policies"
@@ -136,4 +135,4 @@ if VERBOSE:
     # Save the figure and show
     plt.legend(loc=2)
     plt.savefig(
-        'output/cmpSA_featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}_shU{}_shI{}.png'.format(DATA, d, s0, T, nrep, N_TASK, K, noisy_rewards, shU, shI))
+        'output/full_featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}_shU{}_shI{}.png'.format(DATA, d, s0, T, nrep, N_TASK, K, noisy_rewards, shU, shI))
