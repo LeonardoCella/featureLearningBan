@@ -136,4 +136,4 @@ if VERBOSE:
     # Save the figure and show
     plt.legend(loc=2)
     plt.savefig(
-        'output/full_cmpSA_featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}_shU{}_shI{}.png'.format(DATA, d, s0, T, nrep, N_TASK, K, noisy_rewards, shU, shI))
+        'output/CMP_SA_featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}_shU{}_shI{}.png'.format(DATA, d, s0, T, nrep, N_TASK, K, noisy_rewards, shU, shI))

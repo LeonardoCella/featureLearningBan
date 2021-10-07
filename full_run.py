@@ -53,7 +53,7 @@ assert nrep > 0, "Not consistent number of repetitions"
 assert d > s0, "Not consistent sparsity-features relation"
 assert T > 0, "Not consistent horizon parameter"
 assert N_TASK > 0, "Not consistent number of tasks"
-assert sa_cfg in range(2), "Not existing configuration"
+assert sa_cfg in range(3), "Not existing configuration"
 
 if VERBOSE:
     print("RUN Horizon {}, Tasks {}, Arms {}, dimensions {}".format(T, N_TASK, K, d))
@@ -68,14 +68,16 @@ policies_name = []
 reg = [.1, 1, 10]
 
 # Random Policy
-policies["SA FeatLearnBan"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[sa_cfg])] 
-policies_name.append("SA FeatLearnBan")
+policies["SA FeatLearnBan0"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[0])] 
+policies_name.append("SA FeatLearnBan0")
+policies["SA FeatLearnBan1"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[1])] 
+policies_name.append("SA FeatLearnBan1")
+policies["SA FeatLearnBan2"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[2])] 
+policies_name.append("SA FeatLearnBan2")
 policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
 policies_name.append("OFUL")
 policies["LASSO"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
 policies_name.append("LASSO")
-policies["Random"] = [Random(K) for _ in range(N_TASK)]
-policies_name.append("Random")
 
 
 assert len(policies_name) == len(policies), "Inconsistent Policies"
@@ -135,4 +137,4 @@ if VERBOSE:
     # Save the figure and show
     plt.legend(loc=2)
     plt.savefig(
-        'output/full_featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}_shU{}_shI{}.png'.format(DATA, d, s0, T, nrep, N_TASK, K, noisy_rewards, shU, shI))
+        'output/AISTATS_d{}_N{}_rep{}_T{}_K{}.png'.format(d, T, nrep, N_TASK, K))
