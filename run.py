@@ -98,7 +98,6 @@ test_results = []
 for p_name, p in policies.items():
     print("\n=======NEW RUN=======")
     print("===POLICY {}===".format(p_name))
-
     # Here each policy p is a list of N_TASK policies except for SA_FeatLearnBan
     mtl = MTL(DATA, N_TASK, T, K, d, s0, variance, p, p_name, noisy_rewards, shU, shI)
     evaluation = Evaluation(mtl, T, p_name, nrep, N_TASK)

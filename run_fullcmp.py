@@ -67,14 +67,14 @@ reg = [.1, 1, 10]
 # Random Policy
 #policies["Random"] = [Random(K) for _ in range(N_TASK)]
 #policies_name.append("Random")
-policies["SA FeatLearnBan 0"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[0])] 
-policies_name.append("SA FeatLearnBan 0")
-policies["SA FeatLearnBan 1"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[1])] 
-policies_name.append("SA FeatLearnBan 1")
-policies["SA FeatLearnBan 10"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[2])] 
-policies_name.append("SA FeatLearnBan 10")
-policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
-policies_name.append("OFUL")
+policies["Trace-Norm Bandit"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[0])] 
+policies_name.append("Trace-Norm Bandit")
+#policies["SA FeatLearnBan 1"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[1])] 
+#policies_name.append("SA FeatLearnBan 1")
+#policies["SA FeatLearnBan 10"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[2])] #
+#policies_name.append("SA FeatLearnBan 10")
+#policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
+#policies_name.append("OFUL")
 policies["LASSO"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
 policies_name.append("LASSO")
 
@@ -136,4 +136,4 @@ if VERBOSE:
     # Save the figure and show
     plt.legend(loc=2)
     plt.savefig(
-        'output/CMP_SA_featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}_shU{}_shI{}.png'.format(DATA, d, s0, T, nrep, N_TASK, K, noisy_rewards, shU, shI))
+        'output/ICML_featLearn{}_d{}_s{}_T{}_rep{}_tasks{}_arms{}_noisy{}_shU{}_shI{}.png'.format(DATA, d, s0, T, nrep, N_TASK, K, noisy_rewards, shU, shI))

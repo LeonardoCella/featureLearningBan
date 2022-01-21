@@ -133,4 +133,4 @@ if VERBOSE:
     # Save the figure and show
     plt.legend(loc=2)
     plt.savefig(
-        'output/AISTATS_d{}_N{}_rep{}_T{}_K{}.png'.format(d, T, nrep, N_TASK, K))
+        'output/AISTATS_d{}_N{}_rep{}_T{}_K{}_cfg{}.png'.format(d, T, nrep, N_TASK, K, sa_cfg))

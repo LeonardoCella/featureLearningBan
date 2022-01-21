@@ -18,8 +18,8 @@ here = path.dirname(__file__)
 
 class Movielens():
 
-    def __init__(self, N, d, K, T):
-        print("Movielens INIT N {} d {} K {} T {}".format(N, d, K, T))
+    def __init__(self, N, d, K, T, shI, shU):
+        print("Movielens INIT N {} d {} K {} T {} shI {} shU {}".format(N, d, K, T, shI, shU))
         self._N_ground = 100
         self._N = N
         self._d = d
@@ -27,8 +27,8 @@ class Movielens():
         self._minT = T
         self._rs = RandomState(1)
         # Preprocessing and Context Generation
-        self._shrinkItem = 500
-        self._shrinkUser = 200
+        self._shrinkItem = shI
+        self._shrinkUser = shU
         self._ratings_preprocessing()
         self._context_mng()  # Create self._arms
         self._users_mng()  # Create self._latentUsers
@@ -66,9 +66,9 @@ class Movielens():
         n_bad = self._minT * (self._K - 1)
         all_itemsID = set(self._urm_df.columns.values)
 
-        task_path = "sparseLinban/arms/MovieLens/XTasks_N{}_d{}_T{}_K{}.pkl".format(self._N, self._d, self._minT,
+        task_path = "featLearnBan/arms/MovieLens/XTasks_N{}_d{}_T{}_K{}.pkl".format(self._N, self._d, self._minT,
                                                                                     self._K)
-        users_path = "sparseLinban/arms/MovieLens/LUsers_N{}_d{}_T{}_K{}.pkl".format(self._N, self._d, self._minT,
+        users_path = "featLearnBan/arms/MovieLens/LUsers_N{}_d{}_T{}_K{}.pkl".format(self._N, self._d, self._minT,
                                                                                      self._K)
 
         # If ready, load the tasks-listuserID-latentUserRepresentation
@@ -143,7 +143,7 @@ class Movielens():
         '''Rating Matrix shrinkage by users and items'''
 
         # If ready, load the contexts
-        path = "sparseLinban/arms/MovieLens/contexts_SVD{}.pkl".format(self._d)
+        path = "featLearnBan/arms/MovieLens/contexts_SVD{}.pkl".format(self._d)
         if Path(path).exists():
             # print("Contexts ready")
             with open(path, 'rb') as ContextsHandler:
@@ -167,7 +167,7 @@ class Movielens():
 
     def _users_mng(self):
         '''Latent Users Creation'''
-        path = 'sparseLinban/arms/MovieLens/usersDF_SVD{}.pkl'.format(self._d)
+        path = 'featLearnBan/arms/MovieLens/usersDF_SVD{}.pkl'.format(self._d)
         if Path(path).exists():
             self._latentUsers = read_pickle(path)
         else:
@@ -181,7 +181,7 @@ class Movielens():
     def _ratings_preprocessing(self):
         '''Matrix shrinking'''
 
-        with open("sparseLinban/arms/MovieLens/ratings.dat", 'r') as f:
+        with open("featLearnBan/arms/MovieLens/ratings.dat", 'r') as f:
             urm_byrecords = read_table(f, sep="::", header=None, names=['UserID', 'ItemID', 'rating', 'timestamp'],
                                        engine='python')
         urm_byrecords = urm_byrecords.drop(['timestamp'], axis=1)

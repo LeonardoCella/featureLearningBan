@@ -75,7 +75,7 @@ class MTL(Environment):
                     print("MTL LastFM")
                     lastFM = LastFM(self._N_TASKS, self._d, self._K, self._T, nb_repetition, self._shU, self._shI)
                 else:  # Movielens
-                    movielens = Movielens(self._N_TASKS, self._d, self._K, self._T)
+                    movielens = Movielens(self._N_TASKS, self._d, self._K, self._T, self._shU, self._shI)
 
 
         # Sequence of interactions
@@ -106,7 +106,7 @@ class MTL(Environment):
 
                 if len(self._policies) > 1:  # Independent policies, not MTL learners
                     policy = self._policies[j]
-                else:  # MTL Learner
+                else:  # MTL 
                     policy = self._policies[0]
 
                 opt_arm = 0

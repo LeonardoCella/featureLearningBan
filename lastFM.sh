@@ -2,14 +2,14 @@ NITER=3
 (
 for K in 10 20
 do
-    for T in 30
+    for T in 10 30
     do
         for N in 50 30 10
         do
             for d in 10 20 30
             do
         	((i=i%NITER)); ((i++==0)) && wait
-                python run_fullcmp.py -d $d -K $K -T $T -N $N --shU 10 --shI 50& 
+                python run_fullcmp.py -d $d -K $K -T $T -N $N --shU 10 --shI 50 --nrep 5& 
             done
         done
     done
