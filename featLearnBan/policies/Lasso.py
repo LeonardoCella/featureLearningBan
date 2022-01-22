@@ -17,7 +17,7 @@ class Lasso(Policy):
         self._t = 0
 
     def update(self, j, t, arm, reward):
-        lambda_t = self._reg * sqrt(log(self._d)/(self._t))
+        lambda_t = self._reg * sqrt(log(self._d)/(1 + self._t))
         lasso = linear_model.Lasso(alpha = self._reg, max_iter = 5000, tol = 0.001)
         self._Y.append(reward)
         lasso.fit(self._X, self._Y)

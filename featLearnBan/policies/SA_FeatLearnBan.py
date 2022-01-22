@@ -15,7 +15,7 @@ class SA_FeatLearnBan(Policy):
         self._Y = [[] for _ in range(self._T)] # List of $T$ Target vectors
         self._What = random.rand(self._d * self._T, 1) # One column for each task vector
 
-        self._iterations = 5000
+        self._iterations = 200
         self._reg = reg 
 
     def reset(self):
@@ -34,7 +34,7 @@ class SA_FeatLearnBan(Policy):
 
     def update(self, j, t, arm, rwd):  # j:task, t:round, X; arms as K*d matrix
         #print("SA update(): Task {}/{}, round {}/{}, rwd {}".format(j, self._T, t, self._N, rwd))
-        reg = self._reg * sqrt((t+1)/self._T) * log(self._T)
+        reg = self._reg * sqrt( ( t + self._d) /self._T) * log(self._d + self._T)
         self._Y[j].append(rwd)
         if j == self._T - 1  and t > 0: # If last task but not the first round
             X_mtl = block_diag(*self._X)
