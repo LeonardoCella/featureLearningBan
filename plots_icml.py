@@ -30,21 +30,30 @@ variance = 1.
 # ===
 # CONFIGURATIONS ITERATION
 # ===
+list_d = [10, 20, 50, 70, 100]
+list_N = [10, 20, 50, 70, 100]
+list_T = [10, 20, 100]
+list_r = [5, 10, 20]
+list_K = [5, 10, 20, 30]
 
-for d in [20, 50, 100]:
-    for N in [20, 50, 100]:
-        for T in [20, 50, 100]:
-            for r in [5, 10, 20]:
-                for K in [5, 10, 20, 30]:
 
+for T in list_T: 
+    for r in list_r:
+        for K in list_K:
+            # Results Containers
+            dict_avg_results = {}
+            dict_std_results = {}
 
+            # Plots are done at this level
+            for d in list_d:
+                for N_TASK in list_N:
                     # CONSISTENCY CHECK
-                    assert K > 0, "Not consistent arms number parameter"
+                    assert K > 1, "Not relevant arms number parameter"
                     assert nrep > 0, "Not consistent number of repetitions"
-                    assert d >= r, "Not consistent sparsity-features relation"
-                    assert T >= r, "Not consistent sparsity-features relation"
+                    assert d >= r, "Not consistent features-rank relation"
+                    assert N_TASK >= r, "Not consistent tasks-rank relation"
                     assert T > 0, "Not consistent horizon parameter"
-                    assert N_TASK > 0, "Not consistent number of tasks"
+                    assert r > 0, "Not consistent rank"
 
                     if VERBOSE:
                         print("RUN Horizon {}, Tasks {}, Arms {}, dimensions {}, rank {}".format(T, N_TASK, K, d, r))
@@ -57,26 +66,15 @@ for d in [20, 50, 100]:
                     policies_name = []
 
                     reg = [.1, 1, 10]
-
-                    # Random Policy
-                    policies["Trace-Norm Bandit0"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[0])] 
-                    policies_name.append("Trace-Norm Bandit0")
-                    policies["OFUL0"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
-                    policies_name.append("OFUL0")
-                    policies["LASSO0"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
-                    policies_name.append("LASSO0")
-                    policies["Trace-Norm Bandit1"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[1])] 
-                    policies_name.append("Trace-Norm Bandit1")
-                    policies["OFUL1"] = [Oful(T, d, K, reg[1]) for _ in range(N_TASK)]
-                    policies_name.append("OFUL1")
-                    policies["LASSO1"] = [Lasso(T, d, K, reg[1]) for _ in range(N_TASK)]
-                    policies_name.append("LASSO1")
-                    policies["Trace-Norm Bandit2"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[2])] 
-                    policies_name.append("Trace-Norm Bandit2")
-                    policies["OFUL2"] = [Oful(T, d, K, reg[2]) for _ in range(N_TASK)]
-                    policies_name.append("OFUL2")
-                    policies["LASSO2"] = [Lasso(T, d, K, reg[2]) for _ in range(N_TASK)]
-                    policies_name.append("LASSO2")
+                    
+                    #policies["Random"] = [Random(K) for _ in range(N_TASK)]
+                    #policies_name.append("Random")
+                    policies["Trace-Norm Bandit"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[0])] 
+                    policies_name.append("Trace-Norm Bandit")
+                    policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
+                    policies_name.append("OFUL")
+                    policies["LASSO"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
+                    policies_name.append("LASSO")
 
 
                     assert len(policies_name) == len(policies), "Inconsistent Policies"
@@ -96,6 +94,12 @@ for d in [20, 50, 100]:
                     results = []
                     test_results = []
                     for p_name, p in policies.items():
+
+                        # KEY DEFINITION AND RESULT CONTAINER PREPARATION
+                        key = p_name + "_" + str(d) + "_" + str(N_TASK) 
+                        dict_avg_results.setdefault(key, 0.0)
+                        dict_std_results.setdefault(key, 0.0)
+                        
                         print("\n=======NEW RUN=======")
                         print("===POLICY {}===".format(p_name))
                         # Here each policy p is a list of N_TASK policies except for SA_FeatLearnBan
@@ -105,10 +109,8 @@ for d in [20, 50, 100]:
 
                     if VERBOSE:
                         # ===
-                        # RESULTS VISUALIZATION
+                        # RESULTS EXTRACTION
                         # ===
-                        fig = plt.figure(1)
-                        ax = fig.add_subplot(1, 1, 1)
 
                         # Rewards Extraction
                         POLICY_AVGS = []  # cum sum mean rwd
@@ -118,21 +120,41 @@ for d in [20, 50, 100]:
 
                         for name, avg, std in results:  # list of (policy name, meanRwds, stdRwds)
                             cumsumavg = cumsum(avg)
-                            plt.fill_between(round_indexes, cumsumavg - std / 2, cumsumavg + std / 2, alpha=0.5, color=COLORS[name])
-                            plt.plot(round_indexes, cumsumavg, color=COLORS[name], marker=MARKERS[name],
-                                     label="Policy {}".format(name))
-                            print("\nPOL {}, RWDS EVERY {}".format(name, [cumsumavg[i] for i in arange(0,len(cumsumavg),10)]))
-                            print("FINAL {}".format(cumsumavg[-1]))
+                            # plt.fill_between(round_indexes, cumsumavg - std / 2, cumsumavg + std / 2, alpha=0.5, color=COLORS[name])
+                            # plt.plot(round_indexes, cumsumavg, color=COLORS[name], marker=MARKERS[name],
+                            #         label="Policy {}".format(name))
+                            # print("\nPOL {}, RWDS EVERY 10 rounds: {}".format(name, [cumsumavg[i] for i in arange(0,len(cumsumavg),10)]))
+                            print("POL {} FINAL {}".format(name, cumsumavg[-1]))
+                            key = name + "_" + str(d) + "_" + str(N_TASK) 
+                            dict_avg_results[key] = cumsumavg[-1]
+                            dict_std_results[key] = std[-1]
 
-                        for j in range(N_TASK):
-                            plt.axvline(x=(j + 1) * T, color='b', linewidth=1.0, linestyle='--')
+            # ITERATED OVER FEATURES AND TASKS. FIXED r,K,T
+            # print(dict_avg_results.items())
+            # print(dict_std_results.items())
 
-                        ax.set_ylabel('Cumulative Rewards')
-                        ax.set_xlabel('Rounds across Tasks')
-                        ax.set_title('MTL with {} tasks'.format(N_TASK))
-                        ax.yaxis.grid(True)
+                    
+            # Result extraction by policies fixed d
+            for d in list_d: 
+                fig = plt.figure(1)
+                ax = fig.add_subplot(1, 1, 1)
+                for p_name in policies_name:
+                    avg_byTask = []
+                    std_byTask = []
+                    for N_TASK in list_N:
+                        key = p_name + "_" + str(d) + "_" + str(N_TASK)
+                        avg_byTask.append(dict_avg_results[key])
+                        std_byTask.append(dict_std_results[key])
 
-                        # Save the figure and show
-                        plt.legend(loc=2)
-                        plt.savefig(
-                            'output/ICML_d{}_r{}_T{}_rep{}_N{}_K{}.png'.format(d, r, T, nrep, N_TASK, K))
+                    plt.errorbar(list_N, avg_byTask, std_byTask, label = p_name + str(d) + "_" + str(K) , color = COLORS[p_name], marker = MARKERS[p_name])
+                ax.set_xlabel('Tasks')
+                ax.set_title('MTL by Tasks')
+                ax.yaxis.grid(True)
+
+                # Save the figure and show
+                plt.legend(loc=2)
+                plt.savefig(
+                    'output/ICML_byTASKS_d{}_r{}_T{}_K{}_nrep{}.png'.format(d, r, T, K, nrep))
+                
+                # Clean current axes
+                ax.cla()
