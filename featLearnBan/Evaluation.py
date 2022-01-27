@@ -34,8 +34,8 @@ class Evaluation:
         # print("===Evaluation.py, INIT: {} over {} rounds for {} nbRepetitions".format(self.polName, self.horizon, self.nbRepetitions))
 
         # Parallel call to the policy run over the number of repetitions
-        with Parallel(n_jobs=self.nbRepetitions) as parallel:
-            print("Evaluation In with parallel")
+        with Parallel(n_jobs=self.nbRepetitions, backend="multiprocessing") as parallel:
+            print("Evaluation in WITH: Parallel")
             rep_results = parallel(delayed(parallel_repetitions)(self, self.horizon, self.nbTasks, i) for i in range(nbRepetitions))
 
         # Results extrapolation

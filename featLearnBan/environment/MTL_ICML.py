@@ -56,7 +56,7 @@ class MTL_ICML(Environment):
         # print("W vectors: ", task_parameters)
 
 
-        # N_TASKS T-dimensional noise vector (nb_repetition)
+        # N_TASKS T-dimensional noise vector seed:(nb_repetition)
         noise_vectors = [self._variance * random.randn(horizon) for _ in range(self._N_TASKS)]
         # print("NOISE", noise_vectors)
 
@@ -97,7 +97,8 @@ class MTL_ICML(Environment):
 
                 # FEEDBACK
                 expected_reward = linear_arm.draw(X[choice])
-                noisy_reward = expected_reward + noise[t]
+                if self._noisy_rewards:
+                    expected_reward = expected_reward + noise[t]
 
                 result.store(sequential_round, choice, expected_reward)
                 if self._p_name == "Oracle":

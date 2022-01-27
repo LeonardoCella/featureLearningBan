@@ -34,7 +34,7 @@ d = opts.d
 r = opts.r
 nrep = opts.nrep
 
-noisy_rewards = 1
+noisy_rewards = True
 variance = 1.
 
 assert K > 0, "Not consistent arms number parameter"
@@ -57,12 +57,12 @@ policies_name = []
 reg = [.1, 1, 10, 100]
 
 # Random Policy
+policies["Random"] = [Random(K) for _ in range(N_TASK)]
+policies_name.append("Random")
 policies["Trace-Norm Bandit"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[0])] 
 policies_name.append("Trace-Norm Bandit")
 policies["OFUL"] = [Oful(T, d, K, reg[3]) for _ in range(N_TASK)]
 policies_name.append("OFUL")
-policies["LASSO"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
-policies_name.append("LASSO")
 
 
 assert len(policies_name) == len(policies), "Inconsistent Policies"

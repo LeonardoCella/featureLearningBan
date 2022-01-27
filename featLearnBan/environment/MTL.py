@@ -151,11 +151,14 @@ class MTL(Environment):
                 if self._DATA == 0:
                     expected_reward = linear_arm.draw(X[choice])
                     noisy_reward = expected_reward + noise[t]
+                    if self._noisy_rewards:
+                         expected_reward = noisy_reward
                 else:  # Lenk, LastFM, Movielens Data
                     expected_reward = 0
                     if choice == opt_arm:
                         expected_reward = expected_reward + 1
                     noisy_reward = expected_reward
+                
 
                 # UPDATES (SO FAR ONLY BASED ON EXPECTED REWARD)
                 # Reward with (possible) cost penalization

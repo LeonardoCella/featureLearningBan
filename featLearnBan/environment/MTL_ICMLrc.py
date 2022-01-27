@@ -10,7 +10,7 @@ import sys
 import random as rnd
 
 
-class MTL_ICML(Environment):
+class MTL_ICMLrc(Environment):
     """MTL multi-armed bandit problem with arms given in the 'arms' list"""
 
     def __init__(self, N, T, K, d, r, variance, policies, p_name, noisy_rewards):
@@ -97,7 +97,8 @@ class MTL_ICML(Environment):
 
                 # FEEDBACK
                 expected_reward = linear_arm.draw(X[choice])
-                noisy_reward = expected_reward + noise[t]
+                if self._noisy_rewards:
+                    expected_reward = expected_reward + noise[t]
 
                 result.store(sequential_round, choice, expected_reward)
                 if self._p_name == "Oracle":

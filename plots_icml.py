@@ -10,6 +10,8 @@ from optparse import OptionParser
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
+import json
+
 
 # ===
 # RUNNING PARAMETERS
@@ -18,23 +20,25 @@ from matplotlib import rc
 VERBOSE = True
 
 parser = OptionParser("Usage: %prog [options]", version="%prog 1.0")
+parser.add_option('-T', dest = 'T', default = "10", type = 'int', help = "Number of rounds")
 parser.add_option('--nrep', dest = 'nrep', default = "1", type = 'int', help = "Number Repetitions")
 
 (opts, args) = parser.parse_args()
 
 nrep = opts.nrep
+T_in = opts.T
 
-noisy_rewards = 1
+noisy_rewards = True
 variance = 1.
 
 # ===
 # CONFIGURATIONS ITERATION
 # ===
-list_d = [10, 20, 50, 70, 100]
-list_N = [10, 20, 50, 70, 100]
-list_T = [10, 20, 100]
-list_r = [5, 10, 20]
-list_K = [5, 10, 20, 30]
+list_d = [20]#, 100]
+list_N = [10, 20, 50, 70]#, 100] # NUMBER OF TASKS
+list_T = [T_in] # NUMBER OF ROUNDS
+list_r = [10]
+list_K = [10]
 
 
 for T in list_T: 
@@ -65,16 +69,14 @@ for T in list_T:
                     policies = {}
                     policies_name = []
 
-                    reg = [.1, 1, 10]
+                    reg = [.1, 1, 10, 100]
                     
-                    #policies["Random"] = [Random(K) for _ in range(N_TASK)]
-                    #policies_name.append("Random")
+                    policies["Random"] = [Random(K) for _ in range(N_TASK)]
+                    policies_name.append("Random")
                     policies["Trace-Norm Bandit"] = [SA_FeatLearnBan(N_TASK, T, d ,K, reg[0])] 
                     policies_name.append("Trace-Norm Bandit")
-                    policies["OFUL"] = [Oful(T, d, K, reg[0]) for _ in range(N_TASK)]
+                    policies["OFUL"] = [Oful(T, d, K, reg[2]) for _ in range(N_TASK)]
                     policies_name.append("OFUL")
-                    policies["LASSO"] = [Lasso(T, d, K, reg[0]) for _ in range(N_TASK)]
-                    policies_name.append("LASSO")
 
 
                     assert len(policies_name) == len(policies), "Inconsistent Policies"
@@ -133,6 +135,11 @@ for T in list_T:
             # print(dict_avg_results.items())
             # print(dict_std_results.items())
 
+            # STORING
+            with open("data/avg_d{}_r{}_T{}_K{}_nrep{}.json".format(d, r, T, K, nrep), 'w') as f_avg:
+                json.dump(dict_avg_results, f_avg)
+            with open("data/std_d{}_r{}_T{}_K{}_nrep{}.json".format(d, r, T, K, nrep), 'w') as f_std:
+                json.dump(dict_std_results, f_std)
                     
             # Result extraction by policies fixed d
             for d in list_d: 
@@ -146,15 +153,16 @@ for T in list_T:
                         avg_byTask.append(dict_avg_results[key])
                         std_byTask.append(dict_std_results[key])
 
-                    plt.errorbar(list_N, avg_byTask, std_byTask, label = p_name + str(d) + "_" + str(K) , color = COLORS[p_name], marker = MARKERS[p_name])
+                    plt.errorbar(list_N, avg_byTask, std_byTask, label = p_name, color = COLORS[p_name], marker = MARKERS[p_name])
                 ax.set_xlabel('Tasks')
-                ax.set_title('MTL by Tasks')
+                ax.set_ylabel('Cumulative Rewards')
+                ax.set_title('MTL by Tasks: d={}, r={}, N={}'.format(d, r, T))
                 ax.yaxis.grid(True)
 
                 # Save the figure and show
                 plt.legend(loc=2)
                 plt.savefig(
-                    'output/ICML_byTASKS_d{}_r{}_T{}_K{}_nrep{}.png'.format(d, r, T, K, nrep))
+                    'output/smaller_ICML_byTASKS_d{}_r{}_T{}_K{}_nrep{}.png'.format(d, r, T, K, nrep))
                 
                 # Clean current axes
                 ax.cla()
